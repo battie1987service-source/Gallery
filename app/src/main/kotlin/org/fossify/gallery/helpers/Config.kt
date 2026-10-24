@@ -254,6 +254,10 @@ class Config(context: Context) : BaseConfig(context) {
         get() = prefs.getBoolean(HEAD_GESTURES, false)
         set(headGestures) = prefs.edit().putBoolean(HEAD_GESTURES, headGestures).apply()
 
+    var headGesturesMode: Int
+        get() = prefs.getInt(HEAD_GESTURES_MODE, HEAD_GESTURES_MODE_TURN)
+        set(headGesturesMode) = prefs.edit().putInt(HEAD_GESTURES_MODE, headGesturesMode).apply()
+
     var headGesturesSensitivity: Int
         get() = prefs.getInt(HEAD_GESTURES_SENSITIVITY, HEAD_GESTURES_SENSITIVITY_MEDIUM)
         set(headGesturesSensitivity) = prefs.edit().putInt(HEAD_GESTURES_SENSITIVITY, headGesturesSensitivity).apply()

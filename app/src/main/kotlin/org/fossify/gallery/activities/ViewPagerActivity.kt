@@ -731,9 +731,9 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
             return
         }
 
-        // recreate it every time so a changed sensitivity is picked up
+        // recreate it every time so changed settings are picked up
         mHeadGestureDetector?.stop()
-        mHeadGestureDetector = HeadGestureDetector(this, config.headGesturesSensitivity) { forward ->
+        mHeadGestureDetector = HeadGestureDetector(this, config.headGesturesMode, config.headGesturesSensitivity) { forward ->
             if (isDestroyed) {
                 return@HeadGestureDetector
             }

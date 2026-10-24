@@ -618,6 +618,7 @@ class SettingsActivity : SimpleActivity() {
 
     private fun setupHeadGestures() {
         binding.settingsHeadGestures.isChecked = config.headGestures
+        binding.settingsHeadGesturesModeHolder.beVisibleIf(config.headGestures)
         binding.settingsHeadGesturesSensitivityHolder.beVisibleIf(config.headGestures)
         binding.settingsHeadGesturesHolder.setOnClickListener {
             if (binding.settingsHeadGestures.isChecked) {
@@ -630,6 +631,19 @@ class SettingsActivity : SimpleActivity() {
                         toast(R.string.head_gestures_no_camera_permission)
                     }
                 }
+            }
+        }
+
+        binding.settingsHeadGesturesMode.text = getHeadGesturesModeText()
+        binding.settingsHeadGesturesModeHolder.setOnClickListener {
+            val items = arrayListOf(
+                RadioItem(HEAD_GESTURES_MODE_TURN, getString(R.string.head_gestures_mode_turn)),
+                RadioItem(HEAD_GESTURES_MODE_TILT, getString(R.string.head_gestures_mode_tilt))
+            )
+
+            RadioGroupDialog(this@SettingsActivity, items, config.headGesturesMode) {
+                config.headGesturesMode = it as Int
+                binding.settingsHeadGesturesMode.text = getHeadGesturesModeText()
             }
         }
 
@@ -651,8 +665,16 @@ class SettingsActivity : SimpleActivity() {
     private fun updateHeadGestures(enabled: Boolean) {
         binding.settingsHeadGestures.isChecked = enabled
         config.headGestures = enabled
+        binding.settingsHeadGesturesModeHolder.beVisibleIf(enabled)
         binding.settingsHeadGesturesSensitivityHolder.beVisibleIf(enabled)
     }
+
+    private fun getHeadGesturesModeText() = getString(
+        when (config.headGesturesMode) {
+            HEAD_GESTURES_MODE_TILT -> R.string.head_gestures_mode_tilt
+            else -> R.string.head_gestures_mode_turn
+        }
+    )
 
     private fun getHeadGesturesSensitivityText() = getString(
         when (config.headGesturesSensitivity) {
@@ -982,6 +1004,7 @@ class SettingsActivity : SimpleActivity() {
                 put(HIDE_SYSTEM_UI, config.hideSystemUI)
                 put(ALLOW_INSTANT_CHANGE, config.allowInstantChange)
                 put(HEAD_GESTURES, config.headGestures)
+                put(HEAD_GESTURES_MODE, config.headGesturesMode)
                 put(HEAD_GESTURES_SENSITIVITY, config.headGesturesSensitivity)
                 put(KEEP_SCREEN_ON, config.keepScreenOn)
                 put(ALLOW_PHOTO_GESTURES, config.allowPhotoGestures)
@@ -1130,6 +1153,7 @@ class SettingsActivity : SimpleActivity() {
                 HIDE_SYSTEM_UI -> config.hideSystemUI = value.toBoolean()
                 ALLOW_INSTANT_CHANGE -> config.allowInstantChange = value.toBoolean()
                 HEAD_GESTURES -> config.headGestures = value.toBoolean()
+                HEAD_GESTURES_MODE -> config.headGesturesMode = value.toInt()
                 HEAD_GESTURES_SENSITIVITY -> config.headGesturesSensitivity = value.toInt()
                 KEEP_SCREEN_ON -> config.keepScreenOn = value.toBoolean()
                 ALLOW_PHOTO_GESTURES -> config.allowPhotoGestures = value.toBoolean()

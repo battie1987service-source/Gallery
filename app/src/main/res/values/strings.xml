@@ -142,7 +142,10 @@
     <string name="move_backwards">Move backwards</string>
     <string name="loop_slideshow">Loop slideshow</string>
     <string name="head_gestures_no_camera_permission">Camera permission is needed for head gestures</string>
-    <string name="head_gestures">Change media by turning your head (front camera)</string>
+    <string name="head_gestures">Change media with head gestures (front camera)</string>
+    <string name="head_gestures_mode">Head gesture type</string>
+    <string name="head_gestures_mode_turn">Turn head left / right</string>
+    <string name="head_gestures_mode_tilt">Tilt head left / right</string>
     <string name="head_gestures_sensitivity">Head gesture sensitivity</string>
     <string name="head_gestures_sensitivity_low">Low</string>
     <string name="head_gestures_sensitivity_medium">Medium</string>

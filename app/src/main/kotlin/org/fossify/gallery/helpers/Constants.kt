@@ -59,6 +59,7 @@ const val HIDE_EXTENDED_DETAILS = "hide_extended_details"
 const val ALLOW_INSTANT_CHANGE = "allow_instant_change"
 const val HEAD_GESTURES = "head_gestures"
 const val HEAD_GESTURES_SENSITIVITY = "head_gestures_sensitivity"
+const val HEAD_GESTURES_MODE = "head_gestures_mode"
 const val WAS_NEW_APP_SHOWN = "was_new_app_shown_clock"
 const val LAST_FILEPICKER_PATH = "last_filepicker_path"
 const val LAST_COPY_PATH = "last_copy_path"
@@ -120,6 +121,10 @@ const val SLIDESHOW_DEFAULT_INTERVAL = 5
 const val SLIDESHOW_SLIDE_DURATION = 500L
 const val SLIDESHOW_FADE_DURATION = 1500L
 const val SLIDESHOW_START_ON_ENTER = "slideshow_start_on_enter"
+
+// head gesture modes
+const val HEAD_GESTURES_MODE_TURN = 0
+const val HEAD_GESTURES_MODE_TILT = 1
 
 // head gesture sensitivity
 const val HEAD_GESTURES_SENSITIVITY_LOW = 0

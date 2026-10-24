@@ -17,11 +17,12 @@ import java.util.concurrent.Executors
 import kotlin.math.abs
 
 /**
- * Watches the front camera and reports when the user turns their head left or right.
- * A gesture fires once the yaw passes the trigger angle and re-arms only after the head returns near the center.
+ * Watches the front camera and reports when the user turns or tilts their head left or right, depending on [mode].
+ * A gesture fires once the angle passes the trigger angle and re-arms only after the head returns near the center.
  */
 class HeadGestureDetector(
     private val activity: ComponentActivity,
+    private val mode: Int,
     sensitivity: Int,
     private val callback: (forward: Boolean) -> Unit
 ) {
@@ -29,10 +30,19 @@ class HeadGestureDetector(
         private const val COOLDOWN_MS = 700L
     }
 
-    private val triggerAngle = when (sensitivity) {
-        HEAD_GESTURES_SENSITIVITY_LOW -> 35f
-        HEAD_GESTURES_SENSITIVITY_HIGH -> 15f
-        else -> 25f
+    // tilting the head sideways has a smaller comfortable range than turning it
+    private val triggerAngle = if (mode == HEAD_GESTURES_MODE_TILT) {
+        when (sensitivity) {
+            HEAD_GESTURES_SENSITIVITY_LOW -> 25f
+            HEAD_GESTURES_SENSITIVITY_HIGH -> 10f
+            else -> 17f
+        }
+    } else {
+        when (sensitivity) {
+            HEAD_GESTURES_SENSITIVITY_LOW -> 35f
+            HEAD_GESTURES_SENSITIVITY_HIGH -> 15f
+            else -> 25f
+        }
     }
     private val neutralAngle = triggerAngle * 0.4f
 
@@ -114,7 +124,13 @@ class HeadGestureDetector(
             .addOnSuccessListener { faces ->
                 val face = faces.maxByOrNull { it.boundingBox.width() * it.boundingBox.height() }
                 if (face != null) {
-                    handleYaw(face.headEulerAngleY)
+                    if (mode == HEAD_GESTURES_MODE_TILT) {
+                        // the user tilting their head to their right rotates it counter-clockwise in the unmirrored frame
+                        handleAngle(face.headEulerAngleZ, forwardWhenPositive = true)
+                    } else {
+                        // front camera frames are not mirrored, so the user turning to their right gives a negative yaw
+                        handleAngle(face.headEulerAngleY, forwardWhenPositive = false)
+                    }
                 }
             }
             .addOnCompleteListener {
@@ -123,22 +139,21 @@ class HeadGestureDetector(
     }
 
     // runs on the main thread, ML Kit delivers results there by default
-    private fun handleYaw(yaw: Float) {
+    private fun handleAngle(angle: Float, forwardWhenPositive: Boolean) {
         if (!isRunning) {
             return
         }
 
-        if (abs(yaw) < neutralAngle) {
+        if (abs(angle) < neutralAngle) {
             isArmed = true
             return
         }
 
         val now = SystemClock.elapsedRealtime()
-        if (isArmed && abs(yaw) > triggerAngle && now - lastTriggerTime > COOLDOWN_MS) {
+        if (isArmed && abs(angle) > triggerAngle && now - lastTriggerTime > COOLDOWN_MS) {
             isArmed = false
             lastTriggerTime = now
-            // front camera frames are not mirrored, so the user turning to their right gives a negative yaw
-            callback(yaw < 0)
+            callback((angle > 0) == forwardWhenPositive)
         }
     }
 }
