@@ -18,12 +18,16 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      # use the same debug key on every run so new APKs install over older ones
-      - name: Use fixed debug keystore
-        run: mkdir -p ~/.android && cp .github/debug.keystore ~/.android/debug.keystore
-
       - name: Build foss debug APK
         run: ./gradlew :app:assembleFossDebug
+
+      - name: Show signing certificate
+        run: |
+          apksigner=$(ls $ANDROID_HOME/build-tools/*/apksigner | sort -V | tail -1)
+          for apk in app/build/outputs/apk/foss/debug/*.apk; do
+            digest=$($apksigner verify --print-certs "$apk" | grep -m1 "SHA-256 digest")
+            echo "::notice title=$(basename "$apk")::$digest"
+          done
 
       - uses: actions/upload-artifact@v4
         with:

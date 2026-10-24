@@ -43,6 +43,17 @@ android {
     }
 
     signingConfigs {
+        // a fixed debug key so CI builds can be installed over each other
+        val fixedDebugKeystore = rootProject.file(".github/debug.keystore")
+        if (fixedDebugKeystore.exists()) {
+            getByName("debug") {
+                storeFile = fixedDebugKeystore
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
+        }
+
         if (keystorePropertiesFile.exists()) {
             register("release") {
                 keyAlias = keystoreProperties.getProperty("keyAlias")
