@@ -57,7 +57,7 @@ class ChangeSortingDialog(
             sortingDialogNumericSorting.isChecked = currSorting and SORT_USE_NUMERIC_VALUE != 0
 
             sortingDialogUseForThisFolder.beVisibleIf(showFolderCheckbox)
-            sortingDialogUseForThisFolder.isChecked = config.hasCustomSorting(pathToUse)
+            sortingDialogUseForThisFolder.isChecked = true
             sortingDialogBottomNote.beVisibleIf(!isDirectorySorting)
             sortingDialogRadioCustom.beVisibleIf(isDirectorySorting)
         }

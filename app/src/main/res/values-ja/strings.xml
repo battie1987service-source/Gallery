@@ -107,8 +107,12 @@
     <string name="random_order">ランダムな順序</string>
     <string name="move_backwards">逆方向に進む</string>
     <string name="loop_slideshow">スライドショーをリピート再生する</string>
-    <string name="slideshow_head_gestures">顔の向きで画像を送る（前面カメラ）</string>
     <string name="head_gestures_no_camera_permission">顔の向きで操作するにはカメラの権限が必要です</string>
+    <string name="head_gestures">顔の向きでメディアを切り替え（前面カメラ）</string>
+    <string name="head_gestures_sensitivity">顔の向きの感度</string>
+    <string name="head_gestures_sensitivity_low">低（大きく向く）</string>
+    <string name="head_gestures_sensitivity_medium">中</string>
+    <string name="head_gestures_sensitivity_high">高（少し向くだけ）</string>
     <string name="animation">アニメーション</string>
     <string name="no_animation">なし</string>
     <string name="fade">フェード</string>

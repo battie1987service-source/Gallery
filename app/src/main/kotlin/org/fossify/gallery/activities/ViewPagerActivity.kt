@@ -256,6 +256,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
         mOriginalBrightness = window.updateBrightness(config.maxBrightness, mOriginalBrightness)
         setupOrientation()
         refreshMenuItems()
+        startHeadGestures()
 
         val filename = getCurrentMedium()?.name ?: mPath.getFilenameFromPath()
         binding.mediumViewerToolbar.title = filename
@@ -264,6 +265,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
     override fun onPause() {
         super.onPause()
         stopSlideshow()
+        stopHeadGestures()
     }
 
     override fun onDestroy() {
@@ -604,17 +606,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
 
     private fun initSlideshow() {
         SlideshowDialog(this) {
-            if (config.slideshowHeadGestures) {
-                // ask before starting, the permission dialog pauses the activity and would stop the slideshow
-                handlePermission(PERMISSION_CAMERA) { granted ->
-                    if (!granted) {
-                        toast(R.string.head_gestures_no_camera_permission)
-                    }
-                    startSlideshow()
-                }
-            } else {
-                startSlideshow()
-            }
+            startSlideshow()
         }
     }
 
@@ -636,7 +628,6 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
                     mSlideshowMoveBackwards = config.slideshowMoveBackwards
                     mIsSlideshowActive = true
                     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                    startHeadGestures()
                     scheduleSwipe()
                 }
             }
@@ -724,7 +715,6 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
         if (mIsSlideshowActive) {
             binding.viewPager.setPageTransformer(false, DefaultPageTransformer())
             mIsSlideshowActive = false
-            stopHeadGestures()
             showSystemUI()
             mSlideshowHandler.removeCallbacksAndMessages(null)
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -737,16 +727,24 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
     }
 
     private fun startHeadGestures() {
-        if (!config.slideshowHeadGestures || !hasPermission(PERMISSION_CAMERA)) {
+        if (!config.headGestures || !hasPermission(PERMISSION_CAMERA)) {
             return
         }
 
-        if (mHeadGestureDetector == null) {
-            mHeadGestureDetector = HeadGestureDetector(this) { forward ->
-                if (mIsSlideshowActive && !isDestroyed) {
-                    goToNextMedium(forward)
-                    scheduleSwipe()
-                }
+        // recreate it every time so a changed sensitivity is picked up
+        mHeadGestureDetector?.stop()
+        mHeadGestureDetector = HeadGestureDetector(this, config.headGesturesSensitivity) { forward ->
+            if (isDestroyed) {
+                return@HeadGestureDetector
+            }
+
+            if (mIsSlideshowActive) {
+                goToNextMedium(forward)
+                scheduleSwipe()
+            } else if (forward) {
+                goToNextItem()
+            } else {
+                goToPrevItem()
             }
         }
         mHeadGestureDetector?.start()
@@ -754,6 +752,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
 
     private fun stopHeadGestures() {
         mHeadGestureDetector?.stop()
+        mHeadGestureDetector = null
     }
 
     private fun scheduleSwipe() {

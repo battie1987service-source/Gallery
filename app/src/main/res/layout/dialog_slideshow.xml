@@ -163,22 +163,5 @@
                 android:text="@string/loop_slideshow" />
 
         </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/head_gestures_holder"
-            style="@style/SettingsHolderCheckboxStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/loop_slideshow_holder"
-            android:background="?attr/selectableItemBackground">
-
-            <org.fossify.commons.views.MyAppCompatCheckbox
-                android:id="@+id/head_gestures"
-                style="@style/SettingsCheckboxStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/slideshow_head_gestures" />
-
-        </RelativeLayout>
     </RelativeLayout>
 </ScrollView>

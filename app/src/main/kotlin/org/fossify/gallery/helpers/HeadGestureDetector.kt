@@ -18,17 +18,23 @@ import kotlin.math.abs
 
 /**
  * Watches the front camera and reports when the user turns their head left or right.
- * A gesture fires once the yaw passes [TRIGGER_ANGLE] and re-arms only after the head returns near the center.
+ * A gesture fires once the yaw passes the trigger angle and re-arms only after the head returns near the center.
  */
 class HeadGestureDetector(
     private val activity: ComponentActivity,
+    sensitivity: Int,
     private val callback: (forward: Boolean) -> Unit
 ) {
     companion object {
-        private const val TRIGGER_ANGLE = 25f
-        private const val NEUTRAL_ANGLE = 10f
         private const val COOLDOWN_MS = 700L
     }
+
+    private val triggerAngle = when (sensitivity) {
+        HEAD_GESTURES_SENSITIVITY_LOW -> 35f
+        HEAD_GESTURES_SENSITIVITY_HIGH -> 15f
+        else -> 25f
+    }
+    private val neutralAngle = triggerAngle * 0.4f
 
     private var cameraProvider: ProcessCameraProvider? = null
     private var analysisExecutor: ExecutorService? = null
@@ -122,13 +128,13 @@ class HeadGestureDetector(
             return
         }
 
-        if (abs(yaw) < NEUTRAL_ANGLE) {
+        if (abs(yaw) < neutralAngle) {
             isArmed = true
             return
         }
 
         val now = SystemClock.elapsedRealtime()
-        if (isArmed && abs(yaw) > TRIGGER_ANGLE && now - lastTriggerTime > COOLDOWN_MS) {
+        if (isArmed && abs(yaw) > triggerAngle && now - lastTriggerTime > COOLDOWN_MS) {
             isArmed = false
             lastTriggerTime = now
             // front camera frames are not mirrored, so the user turning to their right gives a negative yaw

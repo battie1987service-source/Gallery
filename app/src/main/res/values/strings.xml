@@ -141,8 +141,12 @@
     <string name="random_order">Random order</string>
     <string name="move_backwards">Move backwards</string>
     <string name="loop_slideshow">Loop slideshow</string>
-    <string name="slideshow_head_gestures">Navigate by turning your head (front camera)</string>
     <string name="head_gestures_no_camera_permission">Camera permission is needed for head gestures</string>
+    <string name="head_gestures">Change media by turning your head (front camera)</string>
+    <string name="head_gestures_sensitivity">Head gesture sensitivity</string>
+    <string name="head_gestures_sensitivity_low">Low</string>
+    <string name="head_gestures_sensitivity_medium">Medium</string>
+    <string name="head_gestures_sensitivity_high">High</string>
     <string name="animation">Animation</string>
     <string name="no_animation">None</string>
     <string name="fade">Fade</string>

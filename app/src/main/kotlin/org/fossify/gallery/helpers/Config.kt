@@ -250,6 +250,14 @@ class Config(context: Context) : BaseConfig(context) {
         get() = prefs.getBoolean(ALLOW_INSTANT_CHANGE, false)
         set(allowInstantChange) = prefs.edit().putBoolean(ALLOW_INSTANT_CHANGE, allowInstantChange).apply()
 
+    var headGestures: Boolean
+        get() = prefs.getBoolean(HEAD_GESTURES, false)
+        set(headGestures) = prefs.edit().putBoolean(HEAD_GESTURES, headGestures).apply()
+
+    var headGesturesSensitivity: Int
+        get() = prefs.getInt(HEAD_GESTURES_SENSITIVITY, HEAD_GESTURES_SENSITIVITY_MEDIUM)
+        set(headGesturesSensitivity) = prefs.edit().putInt(HEAD_GESTURES_SENSITIVITY, headGesturesSensitivity).apply()
+
     private fun getDirectoryColumnsField(): String {
         val isPortrait = context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
         return if (isPortrait) {
@@ -360,10 +368,6 @@ class Config(context: Context) : BaseConfig(context) {
     var loopSlideshow: Boolean
         get() = prefs.getBoolean(SLIDESHOW_LOOP, false)
         set(loopSlideshow) = prefs.edit().putBoolean(SLIDESHOW_LOOP, loopSlideshow).apply()
-
-    var slideshowHeadGestures: Boolean
-        get() = prefs.getBoolean(SLIDESHOW_HEAD_GESTURES, false)
-        set(slideshowHeadGestures) = prefs.edit().putBoolean(SLIDESHOW_HEAD_GESTURES, slideshowHeadGestures).apply()
 
     var tempFolderPath: String
         get() = prefs.getString(TEMP_FOLDER_PATH, "")!!

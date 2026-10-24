@@ -95,6 +95,7 @@ class SettingsActivity : SimpleActivity() {
         setupShowHighestQuality()
         setupAllowOneToOneZoom()
         setupAllowInstantChange()
+        setupHeadGestures()
         setupShowExtendedDetails()
         setupHideExtendedDetails()
         setupManageExtendedDetails()
@@ -615,6 +616,52 @@ class SettingsActivity : SimpleActivity() {
         }
     }
 
+    private fun setupHeadGestures() {
+        binding.settingsHeadGestures.isChecked = config.headGestures
+        binding.settingsHeadGesturesSensitivityHolder.beVisibleIf(config.headGestures)
+        binding.settingsHeadGesturesHolder.setOnClickListener {
+            if (binding.settingsHeadGestures.isChecked) {
+                updateHeadGestures(false)
+            } else {
+                handlePermission(PERMISSION_CAMERA) { granted ->
+                    if (granted) {
+                        updateHeadGestures(true)
+                    } else {
+                        toast(R.string.head_gestures_no_camera_permission)
+                    }
+                }
+            }
+        }
+
+        binding.settingsHeadGesturesSensitivity.text = getHeadGesturesSensitivityText()
+        binding.settingsHeadGesturesSensitivityHolder.setOnClickListener {
+            val items = arrayListOf(
+                RadioItem(HEAD_GESTURES_SENSITIVITY_LOW, getString(R.string.head_gestures_sensitivity_low)),
+                RadioItem(HEAD_GESTURES_SENSITIVITY_MEDIUM, getString(R.string.head_gestures_sensitivity_medium)),
+                RadioItem(HEAD_GESTURES_SENSITIVITY_HIGH, getString(R.string.head_gestures_sensitivity_high))
+            )
+
+            RadioGroupDialog(this@SettingsActivity, items, config.headGesturesSensitivity) {
+                config.headGesturesSensitivity = it as Int
+                binding.settingsHeadGesturesSensitivity.text = getHeadGesturesSensitivityText()
+            }
+        }
+    }
+
+    private fun updateHeadGestures(enabled: Boolean) {
+        binding.settingsHeadGestures.isChecked = enabled
+        config.headGestures = enabled
+        binding.settingsHeadGesturesSensitivityHolder.beVisibleIf(enabled)
+    }
+
+    private fun getHeadGesturesSensitivityText() = getString(
+        when (config.headGesturesSensitivity) {
+            HEAD_GESTURES_SENSITIVITY_LOW -> R.string.head_gestures_sensitivity_low
+            HEAD_GESTURES_SENSITIVITY_HIGH -> R.string.head_gestures_sensitivity_high
+            else -> R.string.head_gestures_sensitivity_medium
+        }
+    )
+
     private fun setupShowExtendedDetails() {
         binding.settingsShowExtendedDetails.isChecked = config.showExtendedDetails
         updateExtendedDetailsButtons()
@@ -934,6 +981,8 @@ class SettingsActivity : SimpleActivity() {
                 put(BLACK_BACKGROUND, config.blackBackground)
                 put(HIDE_SYSTEM_UI, config.hideSystemUI)
                 put(ALLOW_INSTANT_CHANGE, config.allowInstantChange)
+                put(HEAD_GESTURES, config.headGestures)
+                put(HEAD_GESTURES_SENSITIVITY, config.headGesturesSensitivity)
                 put(KEEP_SCREEN_ON, config.keepScreenOn)
                 put(ALLOW_PHOTO_GESTURES, config.allowPhotoGestures)
                 put(ALLOW_DOWN_GESTURE, config.allowDownGesture)
@@ -1080,6 +1129,8 @@ class SettingsActivity : SimpleActivity() {
                 BLACK_BACKGROUND -> config.blackBackground = value.toBoolean()
                 HIDE_SYSTEM_UI -> config.hideSystemUI = value.toBoolean()
                 ALLOW_INSTANT_CHANGE -> config.allowInstantChange = value.toBoolean()
+                HEAD_GESTURES -> config.headGestures = value.toBoolean()
+                HEAD_GESTURES_SENSITIVITY -> config.headGesturesSensitivity = value.toInt()
                 KEEP_SCREEN_ON -> config.keepScreenOn = value.toBoolean()
                 ALLOW_PHOTO_GESTURES -> config.allowPhotoGestures = value.toBoolean()
                 ALLOW_DOWN_GESTURE -> config.allowDownGesture = value.toBoolean()
