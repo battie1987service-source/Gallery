@@ -18,6 +18,10 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # use the same debug key on every run so new APKs install over older ones
+      - name: Use fixed debug keystore
+        run: mkdir -p ~/.android && cp .github/debug.keystore ~/.android/debug.keystore
+
       - name: Build foss debug APK
         run: ./gradlew :app:assembleFossDebug
 
