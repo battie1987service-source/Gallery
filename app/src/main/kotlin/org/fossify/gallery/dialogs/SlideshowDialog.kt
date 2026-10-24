@@ -68,6 +68,11 @@ class SlideshowDialog(val activity: BaseSimpleActivity, val callback: () -> Unit
                 intervalValue.clearFocus()
                 loopSlideshow.toggle()
             }
+
+            headGesturesHolder.setOnClickListener {
+                intervalValue.clearFocus()
+                headGestures.toggle()
+            }
         }
         setupValues()
 
@@ -96,6 +101,7 @@ class SlideshowDialog(val activity: BaseSimpleActivity, val callback: () -> Unit
             randomOrder.isChecked = config.slideshowRandomOrder
             moveBackwards.isChecked = config.slideshowMoveBackwards
             loopSlideshow.isChecked = config.loopSlideshow
+            headGestures.isChecked = config.slideshowHeadGestures
         }
     }
 
@@ -112,6 +118,7 @@ class SlideshowDialog(val activity: BaseSimpleActivity, val callback: () -> Unit
             slideshowRandomOrder = binding.randomOrder.isChecked
             slideshowMoveBackwards = binding.moveBackwards.isChecked
             loopSlideshow = binding.loopSlideshow.isChecked
+            slideshowHeadGestures = binding.headGestures.isChecked
         }
     }
 

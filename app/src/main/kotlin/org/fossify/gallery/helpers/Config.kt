@@ -361,6 +361,10 @@ class Config(context: Context) : BaseConfig(context) {
         get() = prefs.getBoolean(SLIDESHOW_LOOP, false)
         set(loopSlideshow) = prefs.edit().putBoolean(SLIDESHOW_LOOP, loopSlideshow).apply()
 
+    var slideshowHeadGestures: Boolean
+        get() = prefs.getBoolean(SLIDESHOW_HEAD_GESTURES, false)
+        set(slideshowHeadGestures) = prefs.edit().putBoolean(SLIDESHOW_HEAD_GESTURES, slideshowHeadGestures).apply()
+
     var tempFolderPath: String
         get() = prefs.getString(TEMP_FOLDER_PATH, "")!!
         set(tempFolderPath) = prefs.edit().putString(TEMP_FOLDER_PATH, tempFolderPath).apply()

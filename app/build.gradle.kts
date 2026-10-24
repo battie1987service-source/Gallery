@@ -195,6 +195,9 @@ dependencies {
     implementation(libs.avif.integration)
     implementation(libs.jxl.integration)
     implementation(libs.okio)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.mlkit.face.detection)
     implementation(libs.picasso) {
         exclude(group = "com.squareup.okhttp3", module = "okhttp")
     }

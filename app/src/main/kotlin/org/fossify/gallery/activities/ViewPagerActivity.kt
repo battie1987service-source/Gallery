@@ -85,6 +85,7 @@ import org.fossify.commons.extensions.viewBinding
 import org.fossify.commons.helpers.FAVORITES
 import org.fossify.commons.helpers.IS_FROM_GALLERY
 import org.fossify.commons.helpers.NOMEDIA
+import org.fossify.commons.helpers.PERMISSION_CAMERA
 import org.fossify.commons.helpers.REAL_FILE_PATH
 import org.fossify.commons.helpers.REQUEST_EDIT_IMAGE
 import org.fossify.commons.helpers.REQUEST_SET_AS
@@ -147,6 +148,7 @@ import org.fossify.gallery.helpers.BOTTOM_ACTION_TOGGLE_VISIBILITY
 import org.fossify.gallery.helpers.ColorModeHelper
 import org.fossify.gallery.helpers.DefaultPageTransformer
 import org.fossify.gallery.helpers.FadePageTransformer
+import org.fossify.gallery.helpers.HeadGestureDetector
 import org.fossify.gallery.helpers.GO_TO_NEXT_ITEM
 import org.fossify.gallery.helpers.GO_TO_PREV_ITEM
 import org.fossify.gallery.helpers.HIDE_SYSTEM_UI_DELAY
@@ -204,6 +206,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
     private var mSlideshowMedia = mutableListOf<Medium>()
     private var mAreSlideShowMediaVisible = false
     private var mRandomSlideshowStopped = false
+    private var mHeadGestureDetector: HeadGestureDetector? = null
 
     private var mIsOrientationLocked = false
 
@@ -265,6 +268,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
 
     override fun onDestroy() {
         super.onDestroy()
+        mHeadGestureDetector?.stop()
         ColorModeHelper.resetColorMode(this)
 
         if (intent.extras?.containsKey(IS_VIEW_INTENT) == true) {
@@ -600,7 +604,17 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
 
     private fun initSlideshow() {
         SlideshowDialog(this) {
-            startSlideshow()
+            if (config.slideshowHeadGestures) {
+                // ask before starting, the permission dialog pauses the activity and would stop the slideshow
+                handlePermission(PERMISSION_CAMERA) { granted ->
+                    if (!granted) {
+                        toast(R.string.head_gestures_no_camera_permission)
+                    }
+                    startSlideshow()
+                }
+            } else {
+                startSlideshow()
+            }
         }
     }
 
@@ -622,6 +636,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
                     mSlideshowMoveBackwards = config.slideshowMoveBackwards
                     mIsSlideshowActive = true
                     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    startHeadGestures()
                     scheduleSwipe()
                 }
             }
@@ -709,6 +724,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
         if (mIsSlideshowActive) {
             binding.viewPager.setPageTransformer(false, DefaultPageTransformer())
             mIsSlideshowActive = false
+            stopHeadGestures()
             showSystemUI()
             mSlideshowHandler.removeCallbacksAndMessages(null)
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -718,6 +734,26 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
                 mRandomSlideshowStopped = true
             }
         }
+    }
+
+    private fun startHeadGestures() {
+        if (!config.slideshowHeadGestures || !hasPermission(PERMISSION_CAMERA)) {
+            return
+        }
+
+        if (mHeadGestureDetector == null) {
+            mHeadGestureDetector = HeadGestureDetector(this) { forward ->
+                if (mIsSlideshowActive && !isDestroyed) {
+                    goToNextMedium(forward)
+                    scheduleSwipe()
+                }
+            }
+        }
+        mHeadGestureDetector?.start()
+    }
+
+    private fun stopHeadGestures() {
+        mHeadGestureDetector?.stop()
     }
 
     private fun scheduleSwipe() {

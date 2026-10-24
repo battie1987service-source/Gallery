@@ -114,6 +114,7 @@ const val SLIDESHOW_RANDOM_ORDER = "slideshow_random_order"
 const val SLIDESHOW_MOVE_BACKWARDS = "slideshow_move_backwards"
 const val SLIDESHOW_ANIMATION = "slideshow_animation"
 const val SLIDESHOW_LOOP = "loop_slideshow"
+const val SLIDESHOW_HEAD_GESTURES = "slideshow_head_gestures"
 const val SLIDESHOW_DEFAULT_INTERVAL = 5
 const val SLIDESHOW_SLIDE_DURATION = 500L
 const val SLIDESHOW_FADE_DURATION = 1500L

@@ -36,6 +36,8 @@ okhttp = "5.3.2"
 okio = "3.17.0"
 picasso = "2.71828"
 subsamplingScaleImageView = "d705c3c4ad"
+camerax = "1.4.2"
+mlkitFaceDetection = "16.1.7"
 #build
 app-build-compileSDKVersion = "36"
 app-build-targetSDK = "36"
@@ -78,6 +80,9 @@ zjupure-webpdecoder = { module = "com.github.zjupure:webpdecoder", version.ref =
 picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
 avif-integration = { group = "com.github.bumptech.glide", name = "avif-integration", version.ref = "glideCompiler" }
 jxl-integration = { group = "io.github.awxkee", name = "jxl-coder-glide", version.ref = "jxlDecoder" }
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
+mlkit-face-detection = { module = "com.google.mlkit:face-detection", version.ref = "mlkitFaceDetection" }
 [bundles]
 room = [
     "androidx-room-ktx",
