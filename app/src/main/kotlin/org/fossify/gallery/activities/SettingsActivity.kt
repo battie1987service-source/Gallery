@@ -638,7 +638,8 @@ class SettingsActivity : SimpleActivity() {
         binding.settingsHeadGesturesModeHolder.setOnClickListener {
             val items = arrayListOf(
                 RadioItem(HEAD_GESTURES_MODE_TURN, getString(R.string.head_gestures_mode_turn)),
-                RadioItem(HEAD_GESTURES_MODE_TILT, getString(R.string.head_gestures_mode_tilt))
+                RadioItem(HEAD_GESTURES_MODE_TILT, getString(R.string.head_gestures_mode_tilt)),
+                RadioItem(HEAD_GESTURES_MODE_NOD, getString(R.string.head_gestures_mode_nod))
             )
 
             RadioGroupDialog(this@SettingsActivity, items, config.headGesturesMode) {
@@ -672,6 +673,7 @@ class SettingsActivity : SimpleActivity() {
     private fun getHeadGesturesModeText() = getString(
         when (config.headGesturesMode) {
             HEAD_GESTURES_MODE_TILT -> R.string.head_gestures_mode_tilt
+            HEAD_GESTURES_MODE_NOD -> R.string.head_gestures_mode_nod
             else -> R.string.head_gestures_mode_turn
         }
     )

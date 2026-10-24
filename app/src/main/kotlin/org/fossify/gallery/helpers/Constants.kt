@@ -125,6 +125,7 @@ const val SLIDESHOW_START_ON_ENTER = "slideshow_start_on_enter"
 // head gesture modes
 const val HEAD_GESTURES_MODE_TURN = 0
 const val HEAD_GESTURES_MODE_TILT = 1
+const val HEAD_GESTURES_MODE_NOD = 2
 
 // head gesture sensitivity
 const val HEAD_GESTURES_SENSITIVITY_LOW = 0

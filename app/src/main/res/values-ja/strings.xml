@@ -112,6 +112,7 @@
     <string name="head_gestures_mode">顔の動きの方式</string>
     <string name="head_gestures_mode_turn">顔を左右に向ける</string>
     <string name="head_gestures_mode_tilt">首を左右にかしげる</string>
+    <string name="head_gestures_mode_nod">下を向いて次へ / 上を向いて前へ</string>
     <string name="head_gestures_sensitivity">顔の動きの感度</string>
     <string name="head_gestures_sensitivity_low">低（大きく動かす）</string>
     <string name="head_gestures_sensitivity_medium">中</string>
