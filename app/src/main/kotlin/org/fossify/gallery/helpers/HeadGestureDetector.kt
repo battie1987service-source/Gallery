@@ -9,6 +9,8 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.Face
+import com.google.mlkit.vision.face.FaceContour
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
@@ -17,8 +19,9 @@ import java.util.concurrent.Executors
 import kotlin.math.abs
 
 /**
- * Watches the front camera and reports when the user turns, tilts or nods their head, depending on [mode].
- * A gesture fires once the angle passes the trigger angle and re-arms only after the head returns near the center.
+ * Watches the front camera and reports when the user turns, tilts or nods their head, or opens or puckers their mouth,
+ * depending on [mode].
+ * A gesture fires once the movement passes the trigger value and re-arms only after the face returns to rest.
  */
 class HeadGestureDetector(
     private val activity: ComponentActivity,
@@ -46,6 +49,18 @@ class HeadGestureDetector(
         }
     }
     private val neutralAngle = triggerAngle * 0.4f
+
+    // mouth opening as a fraction of the mouth width, and how much narrower the mouth gets when puckered
+    private val mouthOpenTrigger = when (sensitivity) {
+        HEAD_GESTURES_SENSITIVITY_LOW -> 0.45f
+        HEAD_GESTURES_SENSITIVITY_HIGH -> 0.22f
+        else -> 0.33f
+    }
+    private val mouthPuckerTrigger = when (sensitivity) {
+        HEAD_GESTURES_SENSITIVITY_LOW -> 0.20f
+        HEAD_GESTURES_SENSITIVITY_HIGH -> 0.09f
+        else -> 0.14f
+    }
 
     private var cameraProvider: ProcessCameraProvider? = null
     private var analysisExecutor: ExecutorService? = null
@@ -84,6 +99,11 @@ class HeadGestureDetector(
             val options = FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
                 .setMinFaceSize(0.25f)
+                .apply {
+                    if (mode == HEAD_GESTURES_MODE_MOUTH) {
+                        setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+                    }
+                }
                 .build()
 
             val detector = FaceDetection.getClient(options)
@@ -134,6 +154,8 @@ class HeadGestureDetector(
                         // looking down gives a negative pitch, measured from the usual resting pitch since
                         // the phone is rarely held exactly at eye level
                         handleAngle(getPitchFromBaseline(face.headEulerAngleX), forwardWhenPositive = false)
+                    } else if (mode == HEAD_GESTURES_MODE_MOUTH) {
+                        handleMouth(face)
                     } else {
                         // front camera frames are not mirrored, so the user turning to their right gives a negative yaw
                         handleAngle(face.headEulerAngleY, forwardWhenPositive = false)
@@ -159,20 +181,53 @@ class HeadGestureDetector(
 
     // runs on the main thread, ML Kit delivers results there by default
     private fun handleAngle(angle: Float, forwardWhenPositive: Boolean) {
-        if (!isRunning) {
-            return
-        }
-
         if (abs(angle) < neutralAngle) {
             isArmed = true
+        } else if (abs(angle) > triggerAngle) {
+            trigger((angle > 0) == forwardWhenPositive)
+        }
+    }
+
+    // an open mouth ("a") goes to the next item, a puckered one ("u") to the previous
+    private fun handleMouth(face: Face) {
+        val upperLip = face.getContour(FaceContour.UPPER_LIP_TOP)?.points ?: return
+        val upperLipInner = face.getContour(FaceContour.UPPER_LIP_BOTTOM)?.points ?: return
+        val lowerLipInner = face.getContour(FaceContour.LOWER_LIP_TOP)?.points ?: return
+        if (upperLip.size < 2 || upperLipInner.isEmpty() || lowerLipInner.isEmpty() || face.boundingBox.width() == 0) {
             return
         }
 
+        val mouthWidth = abs(upperLip.last().x - upperLip.first().x)
+        if (mouthWidth == 0f) {
+            return
+        }
+
+        val opening = (lowerLipInner[lowerLipInner.size / 2].y - upperLipInner[upperLipInner.size / 2].y) / mouthWidth
+        // the resting mouth width differs per person, so compare it with a slowly adapting baseline
+        val widthRatio = mouthWidth / face.boundingBox.width()
+        val restingWidthRatio = baseline ?: widthRatio
+        val narrowing = 1 - widthRatio / restingWidthRatio
+
+        val isAtRest = opening < mouthOpenTrigger * 0.4f && abs(narrowing) < mouthPuckerTrigger * 0.4f
+        baseline = if (isAtRest) {
+            restingWidthRatio + (widthRatio - restingWidthRatio) * BASELINE_SMOOTHING
+        } else {
+            restingWidthRatio
+        }
+
+        when {
+            isAtRest -> isArmed = true
+            opening > mouthOpenTrigger -> trigger(forward = true)
+            narrowing > mouthPuckerTrigger && opening < mouthOpenTrigger * 0.6f -> trigger(forward = false)
+        }
+    }
+
+    private fun trigger(forward: Boolean) {
         val now = SystemClock.elapsedRealtime()
-        if (isArmed && abs(angle) > triggerAngle && now - lastTriggerTime > COOLDOWN_MS) {
+        if (isRunning && isArmed && now - lastTriggerTime > COOLDOWN_MS) {
             isArmed = false
             lastTriggerTime = now
-            callback((angle > 0) == forwardWhenPositive)
+            callback(forward)
         }
     }
 }

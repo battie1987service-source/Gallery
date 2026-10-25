@@ -147,6 +147,7 @@
     <string name="head_gestures_mode_turn">Turn head left / right</string>
     <string name="head_gestures_mode_tilt">Tilt head left / right</string>
     <string name="head_gestures_mode_nod">Look down for next / up for previous</string>
+    <string name="head_gestures_mode_mouth">Open your mouth (ah) for next / pucker (oo) for previous</string>
     <string name="head_gestures_sensitivity">Head gesture sensitivity</string>
     <string name="head_gestures_sensitivity_low">Low</string>
     <string name="head_gestures_sensitivity_medium">Medium</string>
